@@ -45,6 +45,7 @@
 #include "xpt2046.h"
 #include "bme280.h"
 #include "ds3231.h"
+#include "at24xx.h"
 
 #include "fonts/Dmd8x7Clock.h"
 #include "fonts/Dmd13x20Clock.h"
@@ -116,13 +117,7 @@ SRAM_HandleTypeDef hsram1;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-uint8_t rtcSec = 0;
-uint8_t rtcMin = 0;
-uint8_t rtcHrs = 0;
-uint8_t rtcWD = 0;
-uint8_t rtcMonth = 0;
-uint8_t rtcDate = 0;
-uint8_t rtcYear = 0;
+uint8_t rtcSec = 0, rtcMin = 0, rtcHrs = 0, rtcWD = 0, rtcMonth = 0, rtcDate = 0, rtcYear = 0;
 
 float temperature = 0.0, humidity = 0.0, pressure = 0.0;
 uint8_t touchIRQ = 0;

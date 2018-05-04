@@ -26,6 +26,7 @@
 "station_mini\ili9325_fsmc.o"
 "station_mini\xpt2046.o"
 "station_mini\ds3231.o"
+"station_mini\at24xx.o"
 --library_type=microlib --strict --scatter "STATION_MINI\STATION_MINI.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers

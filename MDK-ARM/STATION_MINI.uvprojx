@@ -530,6 +530,11 @@
               <FileType>1</FileType>
               <FilePath>..\Src\ds3231.c</FilePath>
             </File>
+            <File>
+              <FileName>at24xx.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\at24xx.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
