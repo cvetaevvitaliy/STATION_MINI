@@ -44,6 +44,7 @@
 #include "ili9325_fsmc.h"
 #include "xpt2046.h"
 #include "bme280.h"
+#include "ds3231.h"
 
 #include "fonts/Dmd8x7Clock.h"
 #include "fonts/Dmd13x20Clock.h"
@@ -105,8 +106,6 @@
 /* Private variables ---------------------------------------------------------*/
 I2C_HandleTypeDef hi2c2;
 
-RTC_HandleTypeDef hrtc;
-
 SPI_HandleTypeDef hspi1;
 
 TIM_HandleTypeDef htim1;
@@ -117,6 +116,14 @@ SRAM_HandleTypeDef hsram1;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
+uint8_t rtcSec = 0;
+uint8_t rtcMin = 0;
+uint8_t rtcHrs = 0;
+uint8_t rtcWD = 0;
+uint8_t rtcMonth = 0;
+uint8_t rtcDate = 0;
+uint8_t rtcYear = 0;
+
 float temperature = 0.0, humidity = 0.0, pressure = 0.0;
 uint8_t touchIRQ = 0;
 uint16_t touchX = 0, touchY = 0;
@@ -130,7 +137,6 @@ static void MX_FSMC_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_SPI1_Init(void);
-static void MX_RTC_Init(void);
 static void MX_I2C2_Init(void);
 
 /* USER CODE BEGIN PFP */
@@ -175,15 +181,27 @@ int main(void)
   MX_USART1_UART_Init();
   MX_TIM1_Init();
   MX_SPI1_Init();
-  MX_RTC_Init();
   MX_I2C2_Init();
   /* USER CODE BEGIN 2 */
 	HAL_TIM_Base_Start(&htim1);
 	HAL_TIM_Base_Start_IT(&htim1);
 	
+	
+	
+//	clkDate.WeekDay = RTC_WEEKDAY_TUESDAY;
+//  clkDate.Month = RTC_MONTH_JUNE;
+//  clkDate.Date = 0x15;
+//  clkDate.Year = 0x20;
+
+//  if (HAL_RTC_SetDate(&hrtc, &clkDate, RTC_FORMAT_BCD) != HAL_OK)
+//  {
+//    _Error_Handler(__FILE__, __LINE__);
+//  }
+
+	
 	LCD_Init();
 	XPT2046_Init();
-	BME280_initialize();
+	BME280_Init();
 	
 //	uint8_t uartTransmit[] = "UART OK\r\n";
 //	HAL_UART_Transmit(&huart1, uartTransmit, sizeof(uartTransmit), 100);
@@ -235,11 +253,12 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-		temperature = BME280_getTemperature();
-		humidity = BME280_getHumidity();
-		pressure = BME280_getPressure();
+//		temperature = BME280_getTemperature();
+//		humidity = BME280_getHumidity();
+//		pressure = BME280_getPressure();
+//		
+//		HAL_Delay(1000);
 		
-		HAL_Delay(1000);
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
@@ -276,7 +295,6 @@ void SystemClock_Config(void)
 
   RCC_OscInitTypeDef RCC_OscInitStruct;
   RCC_ClkInitTypeDef RCC_ClkInitStruct;
-  RCC_PeriphCLKInitTypeDef PeriphClkInit;
 
     /**Initializes the CPU, AHB and APB busses clocks 
     */
@@ -302,13 +320,6 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RTC;
-  PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_HSE_DIV128;
-  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
@@ -341,60 +352,6 @@ static void MX_I2C2_Init(void)
   if (HAL_I2C_Init(&hi2c2) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
-  }
-
-}
-
-/* RTC init function */
-static void MX_RTC_Init(void)
-{
-
-  RTC_TimeTypeDef sTime;
-  RTC_DateTypeDef DateToUpdate;
-  RTC_TamperTypeDef sTamper;
-
-    /**Initialize RTC Only 
-    */
-  hrtc.Instance = RTC;
-  if(HAL_RTCEx_BKUPRead(&hrtc, RTC_BKP_DR1) != 0x32F2){
-  hrtc.Init.AsynchPrediv = RTC_AUTO_1_SECOND;
-  hrtc.Init.OutPut = RTC_OUTPUTSOURCE_NONE;
-  if (HAL_RTC_Init(&hrtc) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-    /**Initialize RTC and set the Time and Date 
-    */
-  sTime.Hours = 0x1;
-  sTime.Minutes = 0x0;
-  sTime.Seconds = 0x0;
-
-  if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BCD) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-  DateToUpdate.WeekDay = RTC_WEEKDAY_MONDAY;
-  DateToUpdate.Month = RTC_MONTH_JANUARY;
-  DateToUpdate.Date = 0x1;
-  DateToUpdate.Year = 0x0;
-
-  if (HAL_RTC_SetDate(&hrtc, &DateToUpdate, RTC_FORMAT_BCD) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-    /**Enable the RTC Tamper 
-    */
-  sTamper.Tamper = RTC_TAMPER_1;
-  sTamper.Trigger = RTC_TAMPERTRIGGER_LOWLEVEL;
-  if (HAL_RTCEx_SetTamper_IT(&hrtc, &sTamper) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-    HAL_RTCEx_BKUPWrite(&hrtc,RTC_BKP_DR1,0x32F2);
   }
 
 }
@@ -489,7 +446,6 @@ static void MX_GPIO_Init(void)
   GPIO_InitTypeDef GPIO_InitStruct;
 
   /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOE_CLK_ENABLE();

@@ -1,7 +1,6 @@
 --cpu Cortex-M3
 "station_mini\startup_stm32f103xe.o"
 "station_mini\system_stm32f1xx.o"
-"station_mini\stm32f1xx_hal_rtc.o"
 "station_mini\stm32f1xx_hal_spi.o"
 "station_mini\stm32f1xx_hal_tim.o"
 "station_mini\stm32f1xx_hal.o"
@@ -17,7 +16,6 @@
 "station_mini\stm32f1xx_hal_i2c.o"
 "station_mini\stm32f1xx_hal_spi_ex.o"
 "station_mini\stm32f1xx_hal_gpio.o"
-"station_mini\stm32f1xx_hal_rtc_ex.o"
 "station_mini\stm32f1xx_hal_rcc.o"
 "station_mini\stm32f1xx_hal_dma.o"
 "station_mini\stm32f1xx_hal_flash_ex.o"
@@ -27,6 +25,7 @@
 "station_mini\bme280.o"
 "station_mini\ili9325_fsmc.o"
 "station_mini\xpt2046.o"
+"station_mini\ds3231.o"
 --library_type=microlib --strict --scatter "STATION_MINI\STATION_MINI.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers

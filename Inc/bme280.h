@@ -14,7 +14,7 @@
 
 #define BME280_I2C_TIMEOUT 	100
 
-void BME280_initialize(void);
+void BME280_Init(void);
 float BME280_getTemperature(void);
 float BME280_getPressure(void);
 float BME280_getHumidity(void);
