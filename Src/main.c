@@ -41,68 +41,11 @@
 #include "stm32f1xx_hal.h"
 
 /* USER CODE BEGIN Includes */
-#include "ili9325_fsmc.h"
-#include "xpt2046.h"
-
-#include "fonts/Dmd8x7Clock.h"
-#include "fonts/Dmd13x20Clock.h"
-#include "fonts/FreeMono9pt7b.h"
-#include "fonts/FreeMono12pt7b.h"
-#include "fonts/FreeMono18pt7b.h"
-#include "fonts/FreeMono24pt7b.h"
-#include "fonts/FreeMonoBold9pt7b.h"
-#include "fonts/FreeMonoBold12pt7b.h"
-#include "fonts/FreeMonoBold18pt7b.h"
-#include "fonts/FreeMonoBold24pt7b.h"
-#include "fonts/FreeMonoBoldOblique9pt7b.h"
-#include "fonts/FreeMonoBoldOblique12pt7b.h"
-#include "fonts/FreeMonoBoldOblique18pt7b.h"
-#include "fonts/FreeMonoBoldOblique24pt7b.h"
-#include "fonts/FreeMonoOblique9pt7b.h"
-#include "fonts/FreeMonoOblique12pt7b.h"
-#include "fonts/FreeMonoOblique18pt7b.h"
-#include "fonts/FreeMonoOblique24pt7b.h"
-#include "fonts/FreeSans9pt7b.h"
-#include "fonts/FreeSans12pt7b.h"
-#include "fonts/FreeSans18pt7b.h"
-#include "fonts/FreeSans24pt7b.h"
-#include "fonts/FreeSansBold9pt7b.h"
-#include "fonts/FreeSansBold12pt7b.h"
-#include "fonts/FreeSansBold18pt7b.h"
-#include "fonts/FreeSansBold24pt7b.h"
-#include "fonts/FreeSansBoldOblique9pt7b.h"
-#include "fonts/FreeSansBoldOblique12pt7b.h"
-#include "fonts/FreeSansBoldOblique18pt7b.h"
-#include "fonts/FreeSansBoldOblique24pt7b.h"
-#include "fonts/FreeSansOblique9pt7b.h"
-#include "fonts/FreeSansOblique12pt7b.h"
-#include "fonts/FreeSansOblique18pt7b.h"
-#include "fonts/FreeSansOblique24pt7b.h"
-#include "fonts/FreeSerif9pt7b.h"
-#include "fonts/FreeSerif12pt7b.h"
-#include "fonts/FreeSerif18pt7b.h"
-#include "fonts/FreeSerif24pt7b.h"
-#include "fonts/FreeSerifBold9pt7b.h"
-#include "fonts/FreeSerifBold12pt7b.h"
-#include "fonts/FreeSerifBold18pt7b.h"
-#include "fonts/FreeSerifBold24pt7b.h"
-#include "fonts/FreeSerifBoldItalic9pt7b.h"
-#include "fonts/FreeSerifBoldItalic12pt7b.h"
-#include "fonts/FreeSerifBoldItalic18pt7b.h"
-#include "fonts/FreeSerifBoldItalic24pt7b.h"
-#include "fonts/FreeSerifItalic9pt7b.h"
-#include "fonts/FreeSerifItalic12pt7b.h"
-#include "fonts/FreeSerifItalic18pt7b.h"
-#include "fonts/FreeSerifItalic24pt7b.h"
-#include "fonts/FreeSevenSegNum.h"
-#include "fonts/Org_01.h"
-#include "fonts/Picopixel.h"
-#include "fonts/Tiny3x3a2pt7b.h"
-#include "fonts/TomThumb.h"
+#include "bme280.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
-I2C_HandleTypeDef hi2c1;
+I2C_HandleTypeDef hi2c2;
 
 RTC_HandleTypeDef hrtc;
 
@@ -116,9 +59,7 @@ SRAM_HandleTypeDef hsram1;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-uint8_t touchIRQ = 0;
-uint16_t touchX = 0, touchY = 0;
-uint64_t millis = 0;
+float temperature = 0.0, humidity = 0.0, pressure = 0.0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -129,7 +70,7 @@ static void MX_USART1_UART_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_RTC_Init(void);
-static void MX_I2C1_Init(void);
+static void MX_I2C2_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -174,87 +115,24 @@ int main(void)
   MX_TIM1_Init();
   MX_SPI1_Init();
   MX_RTC_Init();
-  MX_I2C1_Init();
+  MX_I2C2_Init();
   /* USER CODE BEGIN 2 */
-	HAL_TIM_Base_Start(&htim1);
-	HAL_TIM_Base_Start_IT(&htim1);
-
-	LCD_Init();
-	XPT2046_Init();
-	
-	//	uint8_t uartTransmit[] = "UART OK\r\n";
-//	HAL_UART_Transmit(&huart1, uartTransmit, sizeof(uartTransmit), 100);
-
-	LCD_Rect_Fill(0, 0, 320, 240, BLUE);
-	LCD_Rect_Fill(1, 1, 318, 238, BLACK);
-		
-//	HAL_Delay(250);
-	LCD_Rect_Fill(0, 0, 160, 128, BLACK);
-	for(uint8_t x = 8; x <= 160; x += 8)
-	{
-		LCD_Line(0, 0, x, 128, 1, GREEN);
-	}
-	for(uint8_t y = 8; y <= 128; y += 8) {
-		LCD_Line(0, 0, 160, y, 1, GREEN);
-	}
-	HAL_Delay(250);
-
-	uint8_t h = 16;
-	uint8_t w = 20;
-	for(uint8_t i = 0; i < 8; i++)
-	{
-		LCD_Rect(80 - w / 2, 64 - h / 2, w, h, 2, YELLOW);
-		h += 16;
-		w += 20;
-	}
-	HAL_Delay(250);
-	LCD_Rect_Fill(0, 0, 160, 128, BLUE);
-	LCD_Rect_Fill(1, 1, 158, 126, BLACK);
-	LCD_Font(5, 40, "This is\n just a Test\nST7735\n", Thumb, 1, YELLOW);
-	LCD_Line(23, 20, 137, 20, 1, MAGENTA);
-	LCD_Line(23, 21, 137, 21, 1, BLUE);
-	LCD_Line(23, 21, 137, 21, 1, BLUE);
-	LCD_Font(41, 10, "SSD1289 DRIVER", Org, 1, MAGENTA);
-	LCD_Font(45, 35, "STM 32 HAL", SerifBold9, 1, RED);
-	LCD_Circle(40, 90, 30, 0, 1, RED);
-	LCD_Circle(45, 90, 20, 1, 1, BLUE);
-	LCD_Triangle(5, 5, 5, 20, 25, 25, 2, BLUE);
-	LCD_Rect(60, 45, 30, 20, 2, GREEN);
-	LCD_Rect_Round(80, 70, 60, 25, 10, 3, WHITE);
-	LCD_Rect_Round_Fill(80, 100, 60, 25, 10, WHITE);
-	LCD_Ellipse(60, 100, 30, 20, 0, 2, YELLOW);
-	LCD_Ellipse(125, 60, 25, 15, 1, 1, YELLOW);
-	LCD_Font(0, 200, "1234567890", SevenSegNum, 1, RED);
-	LCD_Font(10, 220, "1234567890 TEST FONT", Clock8x7, 1, RED);
+BME280_initialize();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-
+		temperature = BME280_getTemperature();
+		humidity = BME280_getHumidity();
+		pressure = BME280_getPressure();
+		
+		HAL_Delay(1000);
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-		if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_6) == GPIO_PIN_SET) touchIRQ = 1;
-		
-		if (touchIRQ) 
-		{
-		touchX = getX();	
-		touchY = getY();
-		if (touchX && touchY && touchX != 0x0DB)
-		{
-		LCD_Rect_Fill(touchX, touchY, 1, 1, WHITE);
-		}
-		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
-		touchX = 0;
-		touchY = 0;
-		touchIRQ = 0;
-		} else 
-		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET);
-		
-	if (millis / 1000 % 2 == 0) HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_SET);
-	else HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
+
   }
   /* USER CODE END 3 */
 
@@ -318,20 +196,20 @@ void SystemClock_Config(void)
   HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 }
 
-/* I2C1 init function */
-static void MX_I2C1_Init(void)
+/* I2C2 init function */
+static void MX_I2C2_Init(void)
 {
 
-  hi2c1.Instance = I2C1;
-  hi2c1.Init.ClockSpeed = 100000;
-  hi2c1.Init.DutyCycle = I2C_DUTYCYCLE_2;
-  hi2c1.Init.OwnAddress1 = 0;
-  hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
-  hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
-  hi2c1.Init.OwnAddress2 = 0;
-  hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
-  hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
-  if (HAL_I2C_Init(&hi2c1) != HAL_OK)
+  hi2c2.Instance = I2C2;
+  hi2c2.Init.ClockSpeed = 100000;
+  hi2c2.Init.DutyCycle = I2C_DUTYCYCLE_2;
+  hi2c2.Init.OwnAddress1 = 0;
+  hi2c2.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+  hi2c2.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+  hi2c2.Init.OwnAddress2 = 0;
+  hi2c2.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+  hi2c2.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+  if (HAL_I2C_Init(&hi2c2) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }

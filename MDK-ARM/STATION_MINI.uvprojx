@@ -388,6 +388,9 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>::CMSIS</GroupName>
+        </Group>
+        <Group>
           <GroupName>Drivers/CMSIS</GroupName>
           <Files>
             <File>
@@ -521,6 +524,11 @@
               <FilePath>../Src/stm32f1xx_it.c</FilePath>
             </File>
             <File>
+              <FileName>bme280.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\bme280.c</FilePath>
+            </File>
+            <File>
               <FileName>ili9325_fsmc.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Src\ili9325_fsmc.c</FilePath>
@@ -531,9 +539,6 @@
               <FilePath>..\Src\xpt2046.c</FilePath>
             </File>
           </Files>
-        </Group>
-        <Group>
-          <GroupName>::CMSIS</GroupName>
         </Group>
       </Groups>
     </Target>

@@ -24,6 +24,7 @@
 "station_mini\stm32f1xx_hal_msp.o"
 "station_mini\main.o"
 "station_mini\stm32f1xx_it.o"
+"station_mini\bme280.o"
 "station_mini\ili9325_fsmc.o"
 "station_mini\xpt2046.o"
 --library_type=microlib --strict --scatter "STATION_MINI\STATION_MINI.sct"
