@@ -14,7 +14,7 @@ bool AT24XX_IsConnected(void)
 		return false;	
 }
 
-bool AT24XX_Save(uint16_t Address, void *data, size_t size_of_data)
+bool AT24XX_Save(uint16_t address, void *data, size_t size_of_data)
 {
 	#if ((AT24XX_SIZE_KBIT == 1) || (AT24XX_SIZE_KBIT == 2))
 	if(size_of_data > 8)
@@ -32,7 +32,7 @@ bool AT24XX_Save(uint16_t Address, void *data, size_t size_of_data)
 	#if ((AT24XX_SIZE_KBIT == 1) || (AT24XX_SIZE_KBIT == 2))
 	if(HAL_I2C_Mem_Write(&EEPROM24XX_I2C, AT24XX_ADDRESS<<1, Address, I2C_MEMADD_SIZE_8BIT, (uint8_t*)data, size_of_data, 100) == HAL_OK)
 	#else
-	if(HAL_I2C_Mem_Write(&AT24XX_I2C, AT24XX_ADDRESS<<1, Address, I2C_MEMADD_SIZE_16BIT, (uint8_t*)data, size_of_data, 100) == HAL_OK)
+	if(HAL_I2C_Mem_Write(&AT24XX_I2C, AT24XX_ADDRESS<<1, address, I2C_MEMADD_SIZE_16BIT, (uint8_t*)data, size_of_data, 100) == HAL_OK)
 	#endif
 	{
 		#if (FREERTOS_IS_ENABLE == 1)
@@ -46,12 +46,12 @@ bool AT24XX_Save(uint16_t Address, void *data, size_t size_of_data)
 		return false;		
 }
 
-bool AT24XX_Load(uint16_t Address, void *data, size_t size_of_data)
+bool AT24XX_Load(uint16_t address, void *data, size_t size_of_data)
 {
 	#if ((AT24XX_SIZE_KBIT == 1) || (AT24XX_SIZE_KBIT == 2))
 	if(HAL_I2C_Mem_Read(&EEPROM24XX_I2C, AT24XX_ADDRESS<<1, Address, I2C_MEMADD_SIZE_8BIT, (uint8_t*)data, size_of_data, 100) == HAL_OK)
 	#else
-	if(HAL_I2C_Mem_Read(&AT24XX_I2C, AT24XX_ADDRESS<<1, Address, I2C_MEMADD_SIZE_16BIT, (uint8_t*)data, size_of_data, 100) == HAL_OK)
+	if(HAL_I2C_Mem_Read(&AT24XX_I2C, AT24XX_ADDRESS<<1, address, I2C_MEMADD_SIZE_16BIT, (uint8_t*)data, size_of_data, 100) == HAL_OK)
 	#endif
 	{
 		return true;
