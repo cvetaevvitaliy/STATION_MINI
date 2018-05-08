@@ -11,6 +11,7 @@ uint8_t decToBcd(uint8_t val);
 uint8_t bcdToDec(uint8_t val);
 
 void DS3231_Update(void);
+
 uint8_t DS3231_getSec(void);
 uint8_t DS3231_getMin(void);
 uint8_t DS3231_getHrs(void);
@@ -28,6 +29,21 @@ uint8_t DS3231_getAlarm2Hour(void);
 uint8_t DS3231_getAlarm2Day(void);
 uint8_t DS3231_getAlarm2Date(void);
 float DS3231_getTemp(void);
-
+void DS3231_setSec(uint8_t value);
+void DS3231_setMin(uint8_t value);
+void DS3231_setHrs(uint8_t value);
+void DS3231_setDay(uint8_t value);
+void DS3231_setDate(uint8_t value);
+void DS3231_setMonth(uint8_t value);
+void DS3231_setYear(uint8_t value);
+void DS3231_setAlarm1Sec(uint8_t value);
+void DS3231_setAlarm1Min(uint8_t value);
+void DS3231_setAlarm1Hour(uint8_t value);
+void DS3231_setAlarm1Day(uint8_t value);
+void DS3231_setAlarm1Date(uint8_t value);
+void DS3231_setAlarm2Min(uint8_t value);
+void DS3231_setAlarm2Hour(uint8_t value);
+void DS3231_setAlarm2Day(uint8_t value);
+void DS3231_setAlarm2Date(uint8_t value);
 
 #endif /* DS3231_H_ */

@@ -117,13 +117,16 @@ SRAM_HandleTypeDef hsram1;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
+uint8_t tick;
+uint64_t millis = 0;
 uint8_t rtcSec = 0, rtcMin = 0, rtcHour = 0, rtcDay = 0, rtcDate = 0, rtcMonth = 0, rtcYear = 0,
-rtcSecA1 = 0, rtcMinA1 = 0, rtcHourA1, rtcDayA1 = 0, rtcDateA1 = 0, rtcMinA2 = 0, rtcHourA2, rtcDayA2 = 0, rtcDateA2 = 0;
+rtcSecA1 = 0, rtcMinA1 = 0, rtcHourA1 = 0, rtcDayA1 = 0, rtcDateA1 = 0, rtcMinA2 = 0, rtcHourA2 = 0, rtcDayA2 = 0, rtcDateA2 = 0;
 float rtcTemp = 0.0;
+uint8_t rtcSet = 0;
 float temperature = 0.0, humidity = 0.0, pressure = 0.0;
 uint8_t touchIRQ = 0;
 uint16_t touchX = 0, touchY = 0;
-uint64_t millis = 0;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -243,18 +246,51 @@ int main(void)
 	LCD_Ellipse(125, 60, 25, 15, 1, 1, YELLOW);
 	LCD_Font(0, 200, "1234567890", SevenSegNum, 1, RED);
 	LCD_Font(10, 220, "1234567890 TEST FONT", Clock8x7, 1, RED);
+	
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-		temperature = BME280_getTemperature();
-		humidity = BME280_getHumidity();
-		pressure = BME280_getPressure();
 		
-		HAL_Delay(1000);
+		if (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13) == GPIO_PIN_RESET)
+		{
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_SET);
+			rtcSet = 1;
+		}
+		else 
+		{
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
+		}
 		
+		if (millis / 1000 % 2 == 0)
+		{
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET);
+		}
+		else 
+		{
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
+		}
+		
+			if (rtcSet)
+		{	
+		
+		DS3231_setSec(0);
+		DS3231_setMin(17);
+		DS3231_setHrs(15);
+		DS3231_setDay(3);
+		DS3231_setDate(8);
+		DS3231_setMonth(5);
+		DS3231_setYear(18);
+			
+		rtcSet = 0;
+			
+		}
+		
+		if (tick)
+		{
+		tick = 0;
 		DS3231_Update();	
 		rtcSec = DS3231_getSec();
 		rtcMin = DS3231_getMin();
@@ -273,6 +309,11 @@ int main(void)
 		rtcDayA2 = DS3231_getAlarm2Day();
 		rtcDateA2 = DS3231_getAlarm2Date();
 		rtcTemp = DS3231_getTemp();
+			
+		temperature = BME280_getTemperature();
+		humidity = BME280_getHumidity();
+		pressure = BME280_getPressure();
+		}
 		
   /* USER CODE END WHILE */
 
@@ -287,15 +328,15 @@ int main(void)
 		{
 		LCD_Rect_Fill(touchX, touchY, 1, 1, WHITE);
 		}
-		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
+//		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
 		touchX = 0;
 		touchY = 0;
 		touchIRQ = 0;
-		} else 
-		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET);
+		} 
+//		else 
+//		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET);
 		
-	if (millis / 1000 % 2 == 0) HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_SET);
-	else HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);	
+
   }
   /* USER CODE END 3 */
 
@@ -461,6 +502,7 @@ static void MX_GPIO_Init(void)
   GPIO_InitTypeDef GPIO_InitStruct;
 
   /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOE_CLK_ENABLE();
@@ -468,6 +510,12 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, LED_1_Pin|LED_2_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin : KEY_A_Pin */
+  GPIO_InitStruct.Pin = KEY_A_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  HAL_GPIO_Init(KEY_A_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : LED_1_Pin LED_2_Pin */
   GPIO_InitStruct.Pin = LED_1_Pin|LED_2_Pin;
