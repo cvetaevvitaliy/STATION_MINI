@@ -41,6 +41,7 @@
 #include "stm32f1xx_hal.h"
 
 /* USER CODE BEGIN Includes */
+#include "string.h"
 #include "ili9325_fsmc.h"
 #include "xpt2046.h"
 #include "bme280.h"
@@ -117,15 +118,17 @@ SRAM_HandleTypeDef hsram1;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-uint8_t tick;
-uint64_t millis = 0;
+uint64_t millis = 0, millisUpd;
 uint8_t rtcSec = 0, rtcMin = 0, rtcHour = 0, rtcDay = 0, rtcDate = 0, rtcMonth = 0, rtcYear = 0,
 rtcSecA1 = 0, rtcMinA1 = 0, rtcHourA1 = 0, rtcDayA1 = 0, rtcDateA1 = 0, rtcMinA2 = 0, rtcHourA2 = 0, rtcDayA2 = 0, rtcDateA2 = 0;
 float rtcTemp = 0.0;
 uint8_t rtcSet = 0;
-float temperature = 0.0, humidity = 0.0, pressure = 0.0;
+float temperature = 0.0, humidity = 0.0;
+uint16_t pressure = 0;
 uint8_t touchIRQ = 0;
 uint16_t touchX = 0, touchY = 0;
+
+uint8_t rtcMinLast = 0;
 
 /* USER CODE END PV */
 
@@ -209,43 +212,43 @@ int main(void)
 	LCD_Rect_Fill(1, 1, 318, 238, BLACK);
 		
 //	HAL_Delay(250);
-	LCD_Rect_Fill(0, 0, 160, 128, BLACK);
-	for(uint8_t x = 8; x <= 160; x += 8)
-	{
-		LCD_Line(0, 0, x, 128, 1, GREEN);
-	}
-	for(uint8_t y = 8; y <= 128; y += 8) {
-		LCD_Line(0, 0, 160, y, 1, GREEN);
-	}
-	HAL_Delay(250);
+//	LCD_Rect_Fill(0, 0, 160, 128, BLACK);
+//	for(uint8_t x = 8; x <= 160; x += 8)
+//	{
+//		LCD_Line(0, 0, x, 128, 1, GREEN);
+//	}
+//	for(uint8_t y = 8; y <= 128; y += 8) {
+//		LCD_Line(0, 0, 160, y, 1, GREEN);
+//	}
+//	HAL_Delay(250);
 
-	uint8_t h = 16;
-	uint8_t w = 20;
-	for(uint8_t i = 0; i < 8; i++)
-	{
-		LCD_Rect(80 - w / 2, 64 - h / 2, w, h, 2, YELLOW);
-		h += 16;
-		w += 20;
-	}
-	HAL_Delay(250);
-	LCD_Rect_Fill(0, 0, 160, 128, BLUE);
-	LCD_Rect_Fill(1, 1, 158, 126, BLACK);
-	LCD_Font(5, 40, "This is\n just a Test\nST7735\n", Thumb, 1, YELLOW);
-	LCD_Line(23, 20, 137, 20, 1, MAGENTA);
-	LCD_Line(23, 21, 137, 21, 1, BLUE);
-	LCD_Line(23, 21, 137, 21, 1, BLUE);
-	LCD_Font(41, 10, "SSD1289 DRIVER", Org, 1, MAGENTA);
-	LCD_Font(45, 35, "STM 32 HAL", SerifBold9, 1, RED);
-	LCD_Circle(40, 90, 30, 0, 1, RED);
-	LCD_Circle(45, 90, 20, 1, 1, BLUE);
-	LCD_Triangle(5, 5, 5, 20, 25, 25, 2, BLUE);
-	LCD_Rect(60, 45, 30, 20, 2, GREEN);
-	LCD_Rect_Round(80, 70, 60, 25, 10, 3, WHITE);
-	LCD_Rect_Round_Fill(80, 100, 60, 25, 10, WHITE);
-	LCD_Ellipse(60, 100, 30, 20, 0, 2, YELLOW);
-	LCD_Ellipse(125, 60, 25, 15, 1, 1, YELLOW);
-	LCD_Font(0, 200, "1234567890", SevenSegNum, 1, RED);
-	LCD_Font(10, 220, "1234567890 TEST FONT", Clock8x7, 1, RED);
+//	uint8_t h = 16;
+//	uint8_t w = 20;
+//	for(uint8_t i = 0; i < 8; i++)
+//	{
+//		LCD_Rect(80 - w / 2, 64 - h / 2, w, h, 2, YELLOW);
+//		h += 16;
+//		w += 20;
+//	}
+//	HAL_Delay(250);
+//	LCD_Rect_Fill(0, 0, 160, 128, BLUE);
+//	LCD_Rect_Fill(1, 1, 158, 126, BLACK);
+//	LCD_Font(5, 40, "This is\n just a Test\nST7735\n", Thumb, 1, YELLOW);
+//	LCD_Line(23, 20, 137, 20, 1, MAGENTA);
+//	LCD_Line(23, 21, 137, 21, 1, BLUE);
+//	LCD_Line(23, 21, 137, 21, 1, BLUE);
+//	LCD_Font(41, 10, "SSD1289 DRIVER", Org, 1, MAGENTA);
+//	LCD_Font(45, 35, "STM 32 HAL", SerifBold9, 1, RED);
+//	LCD_Circle(40, 90, 30, 0, 1, RED);
+//	LCD_Circle(45, 90, 20, 1, 1, BLUE);
+//	LCD_Triangle(5, 5, 5, 20, 25, 25, 2, BLUE);
+//	LCD_Rect(60, 45, 30, 20, 2, GREEN);
+//	LCD_Rect_Round(80, 70, 60, 25, 10, 3, WHITE);
+//	LCD_Rect_Round_Fill(80, 100, 60, 25, 10, WHITE);
+//	LCD_Ellipse(60, 100, 30, 20, 0, 2, YELLOW);
+//	LCD_Ellipse(125, 60, 25, 15, 1, 1, YELLOW);
+//	LCD_Font(0, 200, "1234567890", SevenSegNum, 1, RED);
+//	LCD_Font(10, 220, "1234567890 TEST FONT", Clock8x7, 1, RED);
 	
   /* USER CODE END 2 */
 
@@ -288,9 +291,9 @@ int main(void)
 			
 		}
 		
-		if (tick)
+		if (millisUpd != millis / 250)
 		{
-		tick = 0;
+		millisUpd = millis / 250;
 		DS3231_Update();	
 		rtcSec = DS3231_getSec();
 		rtcMin = DS3231_getMin();
@@ -310,9 +313,58 @@ int main(void)
 		rtcDateA2 = DS3231_getAlarm2Date();
 		rtcTemp = DS3231_getTemp();
 			
-		temperature = BME280_getTemperature();
-		humidity = BME280_getHumidity();
-		pressure = BME280_getPressure();
+//		char clock[8];
+//		sprintf(clock, "%02d:%02d:%02d", rtcHour, rtcMin, rtcSec);
+//		LCD_Rect_Fill(1, 1, 180, 36, BLACK);
+//		LCD_Font(1, 34, clock, SansBold24, 1, RED);
+
+	if (rtcSec % 2 == 0) LCD_Font(70, 36, ":", SansBold24, 1, RED);
+	else LCD_Font(70, 36, ":", SansBold24, 1, BLACK);
+
+	char clockHour[2], clockMin[2]/*, clockSec[2] */;
+	sprintf(clockHour, "%02d", rtcHour);
+	sprintf(clockMin, "%02d", rtcMin);
+	sprintf(clockMin, "%02d", rtcMin);
+
+	if (rtcMinLast != rtcMin)
+{
+	rtcMinLast = rtcMin;
+	LCD_Rect_Fill(1, 1, 62, 47, BLUE_D);
+	LCD_Font(1, 49, clockHour, SevenSegNum, 1, RED);
+
+	LCD_Rect_Fill(87, 1, 62, 47, BLUE_D);
+	LCD_Font(87, 49, clockMin, SevenSegNum, 1, RED);
+}
+			
+	char bme280T[2], bme280H[2], bme280P[4];
+
+	if (temperature != BME280_getTemperature())
+{
+	temperature = BME280_getTemperature();
+	sprintf(bme280T, "%.1f", temperature);
+	LCD_Rect_Fill(2, 201, 90, 37, BLUE_D);
+	LCD_Font(2, 235, bme280T, SansBold24, 1, RED);
+}
+
+	if (humidity != BME280_getHumidity())
+{
+	humidity = BME280_getHumidity();
+	sprintf(bme280H, "%.1f", humidity);
+	LCD_Rect_Fill(107, 201, 90, 37, BLUE_D);
+	LCD_Font(107, 235, bme280H, SansBold24, 1, RED);
+}
+
+	if (pressure != BME280_getPressure())
+{
+	pressure = BME280_getPressure();
+	sprintf(bme280P, "%04d", pressure);
+	LCD_Rect_Fill(213, 201, 105, 37, BLUE_D);
+	LCD_Font(213, 235, bme280P, SansBold24, 1, RED);
+}
+
+
+
+		
 		}
 		
   /* USER CODE END WHILE */

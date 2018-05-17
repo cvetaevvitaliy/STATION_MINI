@@ -37,7 +37,6 @@
 
 /* USER CODE BEGIN 0 */
 #include <stdbool.h>
-extern uint8_t tick;
 extern uint64_t millis;
 /* USER CODE END 0 */
 
@@ -214,7 +213,6 @@ void TIM1_BRK_IRQHandler(void)
 void TIM1_UP_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM1_UP_IRQn 0 */
-	tick = 1;
 	millis++;
   /* USER CODE END TIM1_UP_IRQn 0 */
   HAL_TIM_IRQHandler(&htim1);
