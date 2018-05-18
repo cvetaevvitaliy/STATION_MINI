@@ -263,7 +263,7 @@ int main(void)
 		if (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13) == GPIO_PIN_RESET)
 		{
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_SET);
-			rtcSet = 1;
+		rtcSet = 0;
 		}
 		else 
 		{
@@ -324,10 +324,12 @@ int main(void)
 			if (rtcMinLast != rtcMin)
 			{
 				rtcMinLast = rtcMin;
-				LCD_Rect_Fill(2, 2, 62, 47, BLUE_D);
+				LCD_Rect_Fill(1, 1, 64, 49, WHITE);
+				LCD_Rect_Fill(2, 2, 62, 47, BLACK);
 				LCD_Font(2, 50, clockHour, SevenSegNum, 1, RED);
 
-				LCD_Rect_Fill(86, 2, 62, 47, BLUE_D);
+				LCD_Rect_Fill(85, 1, 64, 49, WHITE);
+				LCD_Rect_Fill(86, 2, 62, 47, BLACK);
 				LCD_Font(86, 50, clockMin, SevenSegNum, 1, RED);
 			}
 						
@@ -336,7 +338,8 @@ int main(void)
 			if (temperature != BME280_getTemperature(-1))
 			{
 				temperature = BME280_getTemperature(-1);
-				LCD_Rect_Fill(2, 201, 90, 37, BLUE_D);
+				LCD_Rect_Fill(1, 200, 92, 39, WHITE);
+				LCD_Rect_Fill(2, 201, 90, 37, BLACK);
 				if (temperature > -10)
 				{
 					if (temperature >= 10 || temperature < 0)
@@ -355,7 +358,8 @@ int main(void)
 			if (humidity != BME280_getHumidity(-1))
 			{
 				humidity = BME280_getHumidity(-1);
-				LCD_Rect_Fill(108, 201, 90, 37, BLUE_D);
+				LCD_Rect_Fill(107, 200, 92, 39, WHITE);
+				LCD_Rect_Fill(108, 201, 90, 37, BLACK);
 				if (humidity >= 10)
 				{
 				sprintf(bme280H, "%.1f", humidity);
@@ -371,7 +375,8 @@ int main(void)
 			if (pressure != BME280_getPressure())
 			{
 				pressure = BME280_getPressure();
-				LCD_Rect_Fill(214, 201, 104, 37, BLUE_D);
+				LCD_Rect_Fill(213, 200, 106, 39, WHITE);
+				LCD_Rect_Fill(214, 201, 104, 37, BLACK);
 				if (pressure >= 1000)
 				{
 				sprintf(bme280P, "%04d", pressure);
