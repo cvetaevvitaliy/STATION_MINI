@@ -118,17 +118,16 @@ SRAM_HandleTypeDef hsram1;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-uint64_t millis = 0, millisUpd;
-uint8_t rtcSec = 0, rtcMin = 0, rtcHour = 0, rtcDay = 0, rtcDate = 0, rtcMonth = 0, rtcYear = 0,
-rtcSecA1 = 0, rtcMinA1 = 0, rtcHourA1 = 0, rtcDayA1 = 0, rtcDateA1 = 0, rtcMinA2 = 0, rtcHourA2 = 0, rtcDayA2 = 0, rtcDateA2 = 0;
-float rtcTemp = 0.0;
-uint8_t rtcSet = 0;
-float temperature = 0.0, humidity = 0.0;
-uint16_t pressure = 0;
-uint8_t touchIRQ = 0;
-uint16_t touchX = 0, touchY = 0;
-
-uint8_t rtcMinLast = 0;
+uint8_t rtcSet = 1;
+uint64_t millis, millisUpd;
+uint8_t rtcSec, rtcMin, rtcHour, rtcDay, rtcDate, rtcMonth, rtcYear,
+rtcSecA1, rtcMinA1, rtcHourA1, rtcDayA1, rtcDateA1, rtcMinA2, rtcHourA2, rtcDayA2, rtcDateA2;
+float rtcTemp;
+float temperature, humidity;
+uint16_t pressure;
+uint8_t touchIRQ;
+uint16_t touchX, touchY;
+uint8_t rtcMinLast;
 
 /* USER CODE END PV */
 
@@ -276,95 +275,111 @@ int main(void)
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
 		}
 		
-			if (rtcSet)
-		{	
-		
+		if (!rtcSet)
+		{			
 		DS3231_setSec(0);
 		DS3231_setMin(17);
 		DS3231_setHrs(15);
 		DS3231_setDay(3);
 		DS3231_setDate(8);
 		DS3231_setMonth(5);
-		DS3231_setYear(18);
-			
-		rtcSet = 0;
-			
+		DS3231_setYear(18);			
+		rtcSet = 1;	
 		}
 		
 		if (millisUpd != millis / 250)
 		{
-		millisUpd = millis / 250;
-		DS3231_Update();	
-		rtcSec = DS3231_getSec();
-		rtcMin = DS3231_getMin();
-		rtcHour = DS3231_getHrs();
-		rtcDay = DS3231_getDay();
-		rtcDate = DS3231_getDate();
-		rtcMonth = DS3231_getMonth();
-		rtcYear = DS3231_getYear();
-		rtcSecA1 = DS3231_getAlarm1Sec();
-		rtcMinA1 = DS3231_getAlarm1Min();
-		rtcHourA1 = DS3231_getAlarm1Hour();
-		rtcDayA1 = DS3231_getAlarm1Day();
-		rtcDateA1 = DS3231_getAlarm1Date();		
-		rtcMinA2 = DS3231_getAlarm2Min();
-		rtcHourA2 = DS3231_getAlarm2Hour();
-		rtcDayA2 = DS3231_getAlarm2Day();
-		rtcDateA2 = DS3231_getAlarm2Date();
-		rtcTemp = DS3231_getTemp();
-			
-//		char clock[8];
-//		sprintf(clock, "%02d:%02d:%02d", rtcHour, rtcMin, rtcSec);
-//		LCD_Rect_Fill(1, 1, 180, 36, BLACK);
-//		LCD_Font(1, 34, clock, SansBold24, 1, RED);
+			millisUpd = millis / 250;
+			DS3231_Update();	
+			rtcSec = DS3231_getSec();
+			rtcMin = DS3231_getMin();
+			rtcHour = DS3231_getHrs();
+			rtcDay = DS3231_getDay();
+			rtcDate = DS3231_getDate();
+			rtcMonth = DS3231_getMonth();
+			rtcYear = DS3231_getYear();
+			rtcSecA1 = DS3231_getAlarm1Sec();
+			rtcMinA1 = DS3231_getAlarm1Min();
+			rtcHourA1 = DS3231_getAlarm1Hour();
+			rtcDayA1 = DS3231_getAlarm1Day();
+			rtcDateA1 = DS3231_getAlarm1Date();		
+			rtcMinA2 = DS3231_getAlarm2Min();
+			rtcHourA2 = DS3231_getAlarm2Hour();
+			rtcDayA2 = DS3231_getAlarm2Day();
+			rtcDateA2 = DS3231_getAlarm2Date();
+			rtcTemp = DS3231_getTemp();
 
-	if (rtcSec % 2 == 0) LCD_Font(70, 36, ":", SansBold24, 1, RED);
-	else LCD_Font(70, 36, ":", SansBold24, 1, BLACK);
+			if (rtcSec % 2 == 0) LCD_Font(70, 36, ":", SansBold24, 1, RED);
+			else LCD_Font(70, 36, ":", SansBold24, 1, BLACK);
 
-	char clockHour[2], clockMin[2]/*, clockSec[2] */;
-	sprintf(clockHour, "%02d", rtcHour);
-	sprintf(clockMin, "%02d", rtcMin);
-	sprintf(clockMin, "%02d", rtcMin);
+			char clockHour[2], clockMin[2]/*, clockSec[2] */;
+			sprintf(clockHour, "%02d", rtcHour);
+			sprintf(clockMin, "%02d", rtcMin);
+			sprintf(clockMin, "%02d", rtcMin);
 
-	if (rtcMinLast != rtcMin)
-{
-	rtcMinLast = rtcMin;
-	LCD_Rect_Fill(1, 1, 62, 47, BLUE_D);
-	LCD_Font(1, 49, clockHour, SevenSegNum, 1, RED);
+			if (rtcMinLast != rtcMin)
+			{
+				rtcMinLast = rtcMin;
+				LCD_Rect_Fill(2, 2, 62, 47, BLUE_D);
+				LCD_Font(2, 50, clockHour, SevenSegNum, 1, RED);
 
-	LCD_Rect_Fill(87, 1, 62, 47, BLUE_D);
-	LCD_Font(87, 49, clockMin, SevenSegNum, 1, RED);
-}
-			
-	char bme280T[2], bme280H[2], bme280P[4];
+				LCD_Rect_Fill(86, 2, 62, 47, BLUE_D);
+				LCD_Font(86, 50, clockMin, SevenSegNum, 1, RED);
+			}
+						
+			char bme280T[2], bme280H[2], bme280P[4];
 
-	if (temperature != BME280_getTemperature())
-{
-	temperature = BME280_getTemperature();
-	sprintf(bme280T, "%.1f", temperature);
-	LCD_Rect_Fill(2, 201, 90, 37, BLUE_D);
-	LCD_Font(2, 235, bme280T, SansBold24, 1, RED);
-}
+			if (temperature != BME280_getTemperature(-1))
+			{
+				temperature = BME280_getTemperature(-1);
+				LCD_Rect_Fill(2, 201, 90, 37, BLUE_D);
+				if (temperature > -10)
+				{
+					if (temperature >= 10 || temperature < 0)
+					{
+					sprintf(bme280T, "%.1f", temperature);
+					LCD_Font(2, 235, bme280T, SansBold24, 1, RED);
+					}
+					else
+					{
+					sprintf(bme280T, " %.1f", temperature);
+					LCD_Font(2, 235, bme280T, SansBold24, 1, RED);
+					}
+				}
+			}
 
-	if (humidity != BME280_getHumidity())
-{
-	humidity = BME280_getHumidity();
-	sprintf(bme280H, "%.1f", humidity);
-	LCD_Rect_Fill(107, 201, 90, 37, BLUE_D);
-	LCD_Font(107, 235, bme280H, SansBold24, 1, RED);
-}
+			if (humidity != BME280_getHumidity(-1))
+			{
+				humidity = BME280_getHumidity(-1);
+				LCD_Rect_Fill(108, 201, 90, 37, BLUE_D);
+				if (humidity >= 10)
+				{
+				sprintf(bme280H, "%.1f", humidity);
+				LCD_Font(108, 235, bme280H, SansBold24, 1, RED);
+				}
+				else
+				{
+				sprintf(bme280H, " %.1f", humidity);
+				LCD_Font(108, 235, bme280H, SansBold24, 1, RED);
+				}
+			}
 
-	if (pressure != BME280_getPressure())
-{
-	pressure = BME280_getPressure();
-	sprintf(bme280P, "%04d", pressure);
-	LCD_Rect_Fill(213, 201, 105, 37, BLUE_D);
-	LCD_Font(213, 235, bme280P, SansBold24, 1, RED);
-}
+			if (pressure != BME280_getPressure())
+			{
+				pressure = BME280_getPressure();
+				LCD_Rect_Fill(214, 201, 104, 37, BLUE_D);
+				if (pressure >= 1000)
+				{
+				sprintf(bme280P, "%04d", pressure);
+				LCD_Font(214, 235, bme280P, SansBold24, 1, RED);
+				}
+				else
+				{
+				sprintf(bme280P, " %03d", pressure);
+				LCD_Font(214, 235, bme280P, SansBold24, 1, RED);
+				}
+			}
 
-
-
-		
 		}
 		
   /* USER CODE END WHILE */

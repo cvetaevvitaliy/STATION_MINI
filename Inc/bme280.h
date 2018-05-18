@@ -6,6 +6,7 @@
 #endif
 
 #include "stm32f1xx_hal.h"
+#include "math.h"
 
 #define BME280_I2C 			hi2c1
 #define BME280_ADDR_G		0x76							 //Address with SDO connected to GND
@@ -14,10 +15,10 @@
 
 #define BME280_I2C_TIMEOUT 	100
 
-void BME280_Init(void);
-float BME280_getTemperature(void);
-float BME280_getHumidity(void);
+float BME280_getTemperature(int8_t n);
+float BME280_getHumidity(int8_t n);
 uint16_t BME280_getPressure(void);
+void BME280_Init(void);
 
 #ifdef __cplusplus
 }
