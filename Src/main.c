@@ -249,6 +249,10 @@ int main(void)
 //	LCD_Font(0, 200, "1234567890", SevenSegNum, 1, RED);
 //	LCD_Font(10, 220, "1234567890 TEST FONT", Clock8x7, 1, RED);
 	
+	
+	LCD_Rect_Fill(108, 200, 1, 1, WHITE);
+	LCD_Rect_Fill(214, 200, 1, 1, WHITE);
+	
   /* USER CODE END 2 */
 
   /* Infinite loop */
